@@ -10,7 +10,7 @@ export const BodyAvatar = ({ selectedPart, onPartSelect }: BodyAvatarProps) => {
   const isPartActive = (part: BodyPart) => selectedPart === part;
 
   return (
-    <div className="relative w-48 h-64 mx-auto">
+    <div className="relative w-48 h-56 mx-auto">
       <svg
         viewBox="0 0 200 280"
         className="w-full h-full"
@@ -118,10 +118,6 @@ export const BodyAvatar = ({ selectedPart, onPartSelect }: BodyAvatarProps) => {
           onClick={() => onPartSelect('legs')}
         />
       </svg>
-      
-      <p className="text-center text-sm text-muted-foreground mt-2">
-        Kliknij w partię ciała, aby filtrować
-      </p>
     </div>
   );
 };
