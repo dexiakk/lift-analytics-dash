@@ -1,4 +1,4 @@
-export type BodyPart = 'arms' | 'chest' | 'legs' | 'back' | 'shoulders' | 'core' | 'all';
+export type BodyPart = 'arms' | 'torso' | 'legs' | 'all';
 
 export type ExerciseCategory = 'wzmocnienie' | 'mobilność' | 'cardio';
 
@@ -21,41 +21,35 @@ export interface WorkoutSession {
 }
 
 export const exercises: Exercise[] = [
-  // Arms
+  // Arms (Ręce)
   { id: '1', name: 'Uginanie ramion ze sztangą', category: 'wzmocnienie', bodyPart: 'arms' },
   { id: '2', name: 'Prostowanie ramion na wyciągu', category: 'wzmocnienie', bodyPart: 'arms' },
   { id: '3', name: 'Uginanie ramion z hantlami', category: 'wzmocnienie', bodyPart: 'arms' },
   { id: '4', name: 'Rozciąganie bicepsów', category: 'mobilność', bodyPart: 'arms' },
   
-  // Chest
-  { id: '5', name: 'Wyciskanie leżąc', category: 'wzmocnienie', bodyPart: 'chest' },
-  { id: '6', name: 'Rozpiętki z hantlami', category: 'wzmocnienie', bodyPart: 'chest' },
-  { id: '7', name: 'Pompki', category: 'wzmocnienie', bodyPart: 'chest' },
-  { id: '8', name: 'Rozciąganie klatki piersiowej', category: 'mobilność', bodyPart: 'chest' },
+  // Torso (Tułów - klatka + plecy + barki + brzuch)
+  { id: '5', name: 'Wyciskanie leżąc', category: 'wzmocnienie', bodyPart: 'torso' },
+  { id: '6', name: 'Rozpiętki z hantlami', category: 'wzmocnienie', bodyPart: 'torso' },
+  { id: '7', name: 'Pompki', category: 'wzmocnienie', bodyPart: 'torso' },
+  { id: '8', name: 'Rozciąganie klatki piersiowej', category: 'mobilność', bodyPart: 'torso' },
+  { id: '13', name: 'Wiosłowanie sztangą', category: 'wzmocnienie', bodyPart: 'torso' },
+  { id: '14', name: 'Podciąganie na drążku', category: 'wzmocnienie', bodyPart: 'torso' },
+  { id: '15', name: 'Przyciąganie wyciągu górnego', category: 'wzmocnienie', bodyPart: 'torso' },
+  { id: '16', name: 'Rozciąganie pleców', category: 'mobilność', bodyPart: 'torso' },
+  { id: '17', name: 'Wyciskanie nad głowę', category: 'wzmocnienie', bodyPart: 'torso' },
+  { id: '18', name: 'Unoszenie hantli bokiem', category: 'wzmocnienie', bodyPart: 'torso' },
+  { id: '19', name: 'Arnoldki', category: 'wzmocnienie', bodyPart: 'torso' },
+  { id: '20', name: 'Rozciąganie barków', category: 'mobilność', bodyPart: 'torso' },
+  { id: '21', name: 'Plank', category: 'wzmocnienie', bodyPart: 'torso' },
+  { id: '22', name: 'Brzuszki', category: 'wzmocnienie', bodyPart: 'torso' },
+  { id: '23', name: 'Russian twist', category: 'wzmocnienie', bodyPart: 'torso' },
+  { id: '24', name: 'Rozciąganie brzucha', category: 'mobilność', bodyPart: 'torso' },
   
-  // Legs
+  // Legs (Nogi)
   { id: '9', name: 'Przysiad ze sztangą', category: 'wzmocnienie', bodyPart: 'legs' },
   { id: '10', name: 'Martwy ciąg', category: 'wzmocnienie', bodyPart: 'legs' },
   { id: '11', name: 'Wyprost nóg na maszynie', category: 'wzmocnienie', bodyPart: 'legs' },
   { id: '12', name: 'Rozciąganie nóg', category: 'mobilność', bodyPart: 'legs' },
-  
-  // Back
-  { id: '13', name: 'Wiosłowanie sztangą', category: 'wzmocnienie', bodyPart: 'back' },
-  { id: '14', name: 'Podciąganie na drążku', category: 'wzmocnienie', bodyPart: 'back' },
-  { id: '15', name: 'Przyciąganie wyciągu górnego', category: 'wzmocnienie', bodyPart: 'back' },
-  { id: '16', name: 'Rozciąganie pleców', category: 'mobilność', bodyPart: 'back' },
-  
-  // Shoulders
-  { id: '17', name: 'Wyciskanie nad głowę', category: 'wzmocnienie', bodyPart: 'shoulders' },
-  { id: '18', name: 'Unoszenie hantli bokiem', category: 'wzmocnienie', bodyPart: 'shoulders' },
-  { id: '19', name: 'Arnoldki', category: 'wzmocnienie', bodyPart: 'shoulders' },
-  { id: '20', name: 'Rozciąganie barków', category: 'mobilność', bodyPart: 'shoulders' },
-  
-  // Core
-  { id: '21', name: 'Plank', category: 'wzmocnienie', bodyPart: 'core' },
-  { id: '22', name: 'Brzuszki', category: 'wzmocnienie', bodyPart: 'core' },
-  { id: '23', name: 'Russian twist', category: 'wzmocnienie', bodyPart: 'core' },
-  { id: '24', name: 'Rozciąganie brzucha', category: 'mobilność', bodyPart: 'core' },
 ];
 
 // Generate dates relative to today
@@ -182,12 +176,9 @@ export const userStats = {
 
 export const bodyPartLabels: Record<BodyPart, string> = {
   all: 'Wszystkie',
-  arms: 'Ramiona',
-  chest: 'Klatka piersiowa',
+  arms: 'Ręce',
+  torso: 'Tułów',
   legs: 'Nogi',
-  back: 'Plecy',
-  shoulders: 'Barki',
-  core: 'Brzuch',
 };
 
 export const categoryLabels: Record<ExerciseCategory, string> = {
