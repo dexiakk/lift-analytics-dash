@@ -5,6 +5,7 @@ import { BodyAvatar } from '@/components/stats/BodyAvatar';
 import { StatsCards } from '@/components/stats/StatsCards';
 import { PeriodSelector, PeriodType } from '@/components/stats/PeriodSelector';
 import { ExerciseSelector } from '@/components/stats/ExerciseSelector';
+import { ExerciseChips } from '@/components/stats/ExerciseChips';
 import { VolumeChart } from '@/components/stats/VolumeChart';
 import { ProgressChart } from '@/components/stats/ProgressChart';
 import { BodyPart, userStats, workoutHistory, exercises, bodyPartLabels } from '@/data/mockData';
@@ -70,6 +71,12 @@ const Index = () => {
     setSelectedExercises([]);
   };
 
+  // Clear all filters
+  const handleClearFilters = () => {
+    setSelectedBodyPart('all');
+    setSelectedExercises([]);
+  };
+
   return (
     <main className="min-h-screen bg-background">
       <header className="sticky top-0 z-10 bg-card border-b border-border px-4 py-3">
@@ -114,13 +121,22 @@ const Index = () => {
           />
         </section>
 
-        {/* Exercise Selector */}
+        {/* Exercise Selector - Show chips when body part selected, dropdown otherwise */}
         <section className="bg-card rounded-2xl p-4 shadow-sm border border-border/50 animate-fade-in">
-          <ExerciseSelector
-            selectedExercises={selectedExercises}
-            onExercisesChange={setSelectedExercises}
-            bodyPartFilter={selectedBodyPart}
-          />
+          {selectedBodyPart === 'all' ? (
+            <ExerciseSelector
+              selectedExercises={selectedExercises}
+              onExercisesChange={setSelectedExercises}
+              bodyPartFilter={selectedBodyPart}
+            />
+          ) : (
+            <ExerciseChips
+              selectedExercises={selectedExercises}
+              onExercisesChange={setSelectedExercises}
+              bodyPartFilter={selectedBodyPart}
+              onClearFilter={handleClearFilters}
+            />
+          )}
         </section>
 
         {/* Charts */}
