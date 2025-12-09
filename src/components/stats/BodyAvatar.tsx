@@ -10,7 +10,6 @@ export const BodyAvatar = ({ selectedPart, onPartSelect }: BodyAvatarProps) => {
   const isPartActive = (part: Exclude<BodyPart, null>) => selectedPart === part;
 
   const handlePartClick = (part: Exclude<BodyPart, null>) => {
-    // Toggle selection - if already selected, deselect
     if (selectedPart === part) {
       onPartSelect(null);
     } else {
@@ -21,170 +20,72 @@ export const BodyAvatar = ({ selectedPart, onPartSelect }: BodyAvatarProps) => {
   return (
     <div className="relative w-32 h-56 mx-auto">
       <svg
-        viewBox="0 0 120 220"
+        viewBox="0 0 100 180"
         className="w-full h-full"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
-        {/* Hair */}
-        <ellipse
-          cx="60"
-          cy="12"
-          rx="14"
-          ry="6"
-          className="fill-amber-600"
-        />
-        
-        {/* Head - for endurance exercises */}
-        <ellipse
-          cx="60"
-          cy="22"
-          rx="12"
-          ry="14"
+        {/* Head */}
+        <circle
+          cx="50"
+          cy="18"
+          r="15"
           className={cn(
-            "fill-muted stroke-border stroke-[1.5] transition-all duration-200 cursor-pointer hover:fill-primary/30",
+            "fill-muted stroke-border stroke-[2] transition-all duration-200 cursor-pointer hover:fill-primary/20",
             isPartActive('head') && "fill-primary/40 stroke-primary"
           )}
           onClick={() => handlePartClick('head')}
         />
         
-        {/* Neck */}
-        <rect x="56" y="35" width="8" height="8" className="fill-muted stroke-border stroke-[1.5]" />
-        
-        {/* Jersey (Torso) */}
+        {/* Torso */}
         <path
-          d="M38 43 L82 43 L82 95 L38 95 Z"
+          d="M30 38 L30 90 L70 90 L70 38 L50 33 L30 38 Z"
           className={cn(
-            "fill-slate-700 stroke-slate-800 stroke-[1.5] transition-all duration-200 cursor-pointer hover:fill-info/40",
-            isPartActive('torso') && "fill-info/50 stroke-info"
+            "fill-muted stroke-border stroke-[2] transition-all duration-200 cursor-pointer hover:fill-info/20",
+            isPartActive('torso') && "fill-info/40 stroke-info"
           )}
           onClick={() => handlePartClick('torso')}
         />
         
-        {/* Jersey V-neck detail */}
+        {/* Left Arm */}
         <path
-          d="M54 43 L60 52 L66 43"
-          className="stroke-red-500 stroke-2 fill-none"
-        />
-        
-        {/* Jersey collar */}
-        <path
-          d="M48 43 L48 47 L72 47 L72 43"
-          className="stroke-slate-600 stroke-[1.5] fill-slate-600"
-        />
-        
-        {/* Jersey crest */}
-        <path
-          d="M55 55 L65 55 L65 65 L60 68 L55 65 Z"
-          className="fill-slate-500 stroke-slate-600 stroke-[0.5]"
-        />
-        
-        {/* Left Sleeve & Arm */}
-        <path
-          d="M38 43 L28 48 L25 70 L38 72 L38 43"
+          d="M30 38 C20 40, 15 50, 14 70 C13 85, 16 100, 20 110 C22 112, 26 112, 28 108 C24 95, 22 80, 24 65 C25 55, 28 48, 30 45"
           className={cn(
-            "fill-slate-700 stroke-slate-800 stroke-[1.5] transition-all duration-200 cursor-pointer hover:fill-warning/40",
-            isPartActive('arms') && "fill-warning/50 stroke-warning"
-          )}
-          onClick={() => handlePartClick('arms')}
-        />
-        {/* Left forearm */}
-        <path
-          d="M25 70 L22 95 L32 95 L38 72"
-          className={cn(
-            "fill-muted stroke-border stroke-[1.5] transition-all duration-200 cursor-pointer hover:fill-warning/30",
+            "fill-muted stroke-border stroke-[2] transition-all duration-200 cursor-pointer hover:fill-warning/20",
             isPartActive('arms') && "fill-warning/40 stroke-warning"
           )}
           onClick={() => handlePartClick('arms')}
         />
         
-        {/* Right Sleeve & Arm */}
+        {/* Right Arm */}
         <path
-          d="M82 43 L92 48 L95 70 L82 72 L82 43"
+          d="M70 38 C80 40, 85 50, 86 70 C87 85, 84 100, 80 110 C78 112, 74 112, 72 108 C76 95, 78 80, 76 65 C75 55, 72 48, 70 45"
           className={cn(
-            "fill-slate-700 stroke-slate-800 stroke-[1.5] transition-all duration-200 cursor-pointer hover:fill-warning/40",
-            isPartActive('arms') && "fill-warning/50 stroke-warning"
-          )}
-          onClick={() => handlePartClick('arms')}
-        />
-        {/* Right forearm */}
-        <path
-          d="M95 70 L98 95 L88 95 L82 72"
-          className={cn(
-            "fill-muted stroke-border stroke-[1.5] transition-all duration-200 cursor-pointer hover:fill-warning/30",
+            "fill-muted stroke-border stroke-[2] transition-all duration-200 cursor-pointer hover:fill-warning/20",
             isPartActive('arms') && "fill-warning/40 stroke-warning"
           )}
           onClick={() => handlePartClick('arms')}
         />
-        
-        {/* Shorts */}
-        <path
-          d="M38 95 L82 95 L78 130 L42 130 Z"
-          className="fill-red-500 stroke-red-600 stroke-[1.5]"
-        />
-        
-        {/* Shorts number */}
-        <text x="60" y="118" textAnchor="middle" className="fill-white text-[10px] font-bold">10</text>
         
         {/* Left Leg */}
         <path
-          d="M42 130 L48 130 L50 175 L40 175 Z"
+          d="M30 90 L32 130 C32 145, 30 160, 28 172 C28 176, 32 178, 38 178 C42 178, 44 176, 44 172 L46 130 L46 90"
           className={cn(
-            "fill-muted stroke-border stroke-[1.5] transition-all duration-200 cursor-pointer hover:fill-success/30",
-            isPartActive('legs') && "fill-success/40 stroke-primary"
+            "fill-muted stroke-border stroke-[2] transition-all duration-200 cursor-pointer hover:fill-success/20",
+            isPartActive('legs') && "fill-success/40 stroke-success"
           )}
           onClick={() => handlePartClick('legs')}
         />
         
         {/* Right Leg */}
         <path
-          d="M72 130 L78 130 L80 175 L70 175 Z"
+          d="M70 90 L68 130 C68 145, 70 160, 72 172 C72 176, 68 178, 62 178 C58 178, 56 176, 56 172 L54 130 L54 90"
           className={cn(
-            "fill-muted stroke-border stroke-[1.5] transition-all duration-200 cursor-pointer hover:fill-success/30",
-            isPartActive('legs') && "fill-success/40 stroke-primary"
+            "fill-muted stroke-border stroke-[2] transition-all duration-200 cursor-pointer hover:fill-success/20",
+            isPartActive('legs') && "fill-success/40 stroke-success"
           )}
           onClick={() => handlePartClick('legs')}
         />
-        
-        {/* Left Sock */}
-        <path
-          d="M40 175 L50 175 L50 200 L40 200 Z"
-          className={cn(
-            "fill-cyan-400 stroke-cyan-500 stroke-[1.5] transition-all duration-200 cursor-pointer hover:fill-success/30",
-            isPartActive('legs') && "fill-success/40 stroke-primary"
-          )}
-          onClick={() => handlePartClick('legs')}
-        />
-        
-        {/* Right Sock */}
-        <path
-          d="M70 175 L80 175 L80 200 L70 200 Z"
-          className={cn(
-            "fill-cyan-400 stroke-cyan-500 stroke-[1.5] transition-all duration-200 cursor-pointer hover:fill-success/30",
-            isPartActive('legs') && "fill-success/40 stroke-primary"
-          )}
-          onClick={() => handlePartClick('legs')}
-        />
-        
-        {/* Left Boot */}
-        <path
-          d="M38 200 L52 200 L52 210 L35 210 L35 205 Z"
-          className="fill-lime-500 stroke-lime-600 stroke-[1.5]"
-        />
-        
-        {/* Right Boot */}
-        <path
-          d="M68 200 L82 200 L85 205 L85 210 L68 210 Z"
-          className="fill-lime-500 stroke-lime-600 stroke-[1.5]"
-        />
-        
-        {/* Boot studs */}
-        <rect x="38" y="210" width="3" height="3" className="fill-slate-800" />
-        <rect x="44" y="210" width="3" height="3" className="fill-slate-800" />
-        <rect x="50" y="210" width="3" height="3" className="fill-slate-800" />
-        <rect x="70" y="210" width="3" height="3" className="fill-slate-800" />
-        <rect x="76" y="210" width="3" height="3" className="fill-slate-800" />
-        <rect x="82" y="210" width="3" height="3" className="fill-slate-800" />
       </svg>
     </div>
   );

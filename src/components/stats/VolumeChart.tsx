@@ -37,12 +37,21 @@ export const VolumeChart = ({ selectedExercises, dateRange }: VolumeChartProps) 
       workout.exercises.forEach((ex) => {
         if (selectedExercises.length === 0 || selectedExercises.includes(ex.exerciseId)) {
           const volume = ex.sets * ex.reps * ex.weight;
-          const exerciseName = exercises.find((e) => e.id === ex.exerciseId)?.name || 'Nieznane';
           
-          if (!dataByDate[dateKey][exerciseName]) {
-            dataByDate[dateKey][exerciseName] = 0;
+          // If no exercises selected or multiple selected, sum everything into "Wolumen"
+          if (selectedExercises.length === 0 || selectedExercises.length > 1) {
+            if (!dataByDate[dateKey]['Wolumen']) {
+              dataByDate[dateKey]['Wolumen'] = 0;
+            }
+            dataByDate[dateKey]['Wolumen'] += volume;
+          } else {
+            // Single exercise selected - show its name
+            const exerciseName = exercises.find((e) => e.id === ex.exerciseId)?.name || 'Nieznane';
+            if (!dataByDate[dateKey][exerciseName]) {
+              dataByDate[dateKey][exerciseName] = 0;
+            }
+            dataByDate[dateKey][exerciseName] += volume;
           }
-          dataByDate[dateKey][exerciseName] += volume;
         }
       });
     });
@@ -54,15 +63,11 @@ export const VolumeChart = ({ selectedExercises, dateRange }: VolumeChartProps) 
   }, [selectedExercises, dateRange]);
 
   const exerciseNames = useMemo(() => {
-    if (selectedExercises.length === 0) {
-      return Array.from(
-        new Set(
-          workoutHistory.flatMap((w) =>
-            w.exercises.map((e) => exercises.find((ex) => ex.id === e.exerciseId)?.name || '')
-          )
-        )
-      ).filter(Boolean);
+    // If no exercises or multiple selected, show single "Wolumen" bar
+    if (selectedExercises.length === 0 || selectedExercises.length > 1) {
+      return ['Wolumen'];
     }
+    // Single exercise - show its name
     return selectedExercises
       .map((id) => exercises.find((ex) => ex.id === id)?.name || '')
       .filter(Boolean);
@@ -102,7 +107,7 @@ export const VolumeChart = ({ selectedExercises, dateRange }: VolumeChartProps) 
             }}
             formatter={(value: number) => [`${value.toLocaleString()} kg`, '']}
           />
-          {selectedExercises.length > 1 && <Legend />}
+          {exerciseNames.length > 1 && <Legend />}
           {exerciseNames.slice(0, 4).map((name, index) => (
             <Bar
               key={name}
