@@ -10,7 +10,7 @@ import {
   Legend,
 } from 'recharts';
 import { exercises, workoutHistory } from '@/data/mockData';
-import { format, parseISO } from 'date-fns';
+import { parseISO, startOfWeek, format } from 'date-fns';
 import { pl } from 'date-fns/locale';
 
 interface VolumeChartProps {
@@ -25,13 +25,16 @@ export const VolumeChart = ({ selectedExercises, dateRange }: VolumeChartProps) 
       return workoutDate >= dateRange.from && workoutDate <= dateRange.to;
     });
 
-    const dataByDate: Record<string, Record<string, number>> = {};
+    // Group by week instead of day
+    const dataByWeek: Record<string, Record<string, number>> = {};
 
     filteredWorkouts.forEach((workout) => {
-      const dateKey = format(parseISO(workout.date), 'dd.MM', { locale: pl });
+      const workoutDate = parseISO(workout.date);
+      const weekStart = startOfWeek(workoutDate, { weekStartsOn: 1 }); // Monday
+      const weekKey = format(weekStart, 'dd.MM', { locale: pl });
       
-      if (!dataByDate[dateKey]) {
-        dataByDate[dateKey] = {};
+      if (!dataByWeek[weekKey]) {
+        dataByWeek[weekKey] = {};
       }
 
       workout.exercises.forEach((ex) => {
@@ -40,24 +43,24 @@ export const VolumeChart = ({ selectedExercises, dateRange }: VolumeChartProps) 
           
           // If no exercises selected or multiple selected, sum everything into "Wolumen"
           if (selectedExercises.length === 0 || selectedExercises.length > 1) {
-            if (!dataByDate[dateKey]['Wolumen']) {
-              dataByDate[dateKey]['Wolumen'] = 0;
+            if (!dataByWeek[weekKey]['Wolumen']) {
+              dataByWeek[weekKey]['Wolumen'] = 0;
             }
-            dataByDate[dateKey]['Wolumen'] += volume;
+            dataByWeek[weekKey]['Wolumen'] += volume;
           } else {
             // Single exercise selected - show its name
             const exerciseName = exercises.find((e) => e.id === ex.exerciseId)?.name || 'Nieznane';
-            if (!dataByDate[dateKey][exerciseName]) {
-              dataByDate[dateKey][exerciseName] = 0;
+            if (!dataByWeek[weekKey][exerciseName]) {
+              dataByWeek[weekKey][exerciseName] = 0;
             }
-            dataByDate[dateKey][exerciseName] += volume;
+            dataByWeek[weekKey][exerciseName] += volume;
           }
         }
       });
     });
 
-    return Object.entries(dataByDate).map(([date, volumes]) => ({
-      date,
+    return Object.entries(dataByWeek).map(([week, volumes]) => ({
+      week: `Tydz. ${week}`,
       ...volumes,
     }));
   }, [selectedExercises, dateRange]);
@@ -86,11 +89,11 @@ export const VolumeChart = ({ selectedExercises, dateRange }: VolumeChartProps) 
   return (
     <div className="h-64 w-full">
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={chartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+        <BarChart data={chartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }} barCategoryGap="20%">
           <CartesianGrid strokeDasharray="3 3" stroke="hsl(214, 32%, 91%)" />
           <XAxis 
-            dataKey="date" 
-            tick={{ fontSize: 11, fill: 'hsl(215, 16%, 47%)' }}
+            dataKey="week" 
+            tick={{ fontSize: 10, fill: 'hsl(215, 16%, 47%)' }}
             axisLine={{ stroke: 'hsl(214, 32%, 91%)' }}
           />
           <YAxis 
