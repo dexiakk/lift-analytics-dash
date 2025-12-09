@@ -1,12 +1,12 @@
-export type BodyPart = 'arms' | 'torso' | 'legs' | 'all';
+export type BodyPart = 'arms' | 'torso' | 'legs' | 'head' | null;
 
-export type ExerciseCategory = 'wzmocnienie' | 'mobilność' | 'cardio';
+export type ExerciseCategory = 'wzmocnienie' | 'mobilność' | 'cardio' | 'wydolność';
 
 export interface Exercise {
   id: string;
   name: string;
   category: ExerciseCategory;
-  bodyPart: BodyPart;
+  bodyPart: Exclude<BodyPart, null>;
 }
 
 export interface WorkoutSession {
@@ -20,7 +20,26 @@ export interface WorkoutSession {
   }[];
 }
 
+export interface WeeklyMicrocycle {
+  weekNumber: number;
+  year: number;
+  startDate: string;
+  days: {
+    day: string;
+    volume: number | null;
+  }[];
+  totalVolume: number;
+  acwr: number; // Acute:Chronic Workload Ratio
+}
+
 export const exercises: Exercise[] = [
+  // Head (Głowa - wydolność)
+  { id: '25', name: 'Bieg ciągły', category: 'wydolność', bodyPart: 'head' },
+  { id: '26', name: 'Interwały', category: 'wydolność', bodyPart: 'head' },
+  { id: '27', name: 'Rower stacjonarny', category: 'wydolność', bodyPart: 'head' },
+  { id: '28', name: 'Skakanka', category: 'wydolność', bodyPart: 'head' },
+  { id: '29', name: 'Bieg na bieżni', category: 'wydolność', bodyPart: 'head' },
+  
   // Arms (Ręce)
   { id: '1', name: 'Uginanie ramion ze sztangą', category: 'wzmocnienie', bodyPart: 'arms' },
   { id: '2', name: 'Prostowanie ramion na wyciągu', category: 'wzmocnienie', bodyPart: 'arms' },
@@ -139,6 +158,7 @@ export const workoutHistory: WorkoutSession[] = [
       { exerciseId: '17', sets: 4, reps: 10, weight: 45 },
       { exerciseId: '18', sets: 4, reps: 12, weight: 12 },
       { exerciseId: '19', sets: 3, reps: 10, weight: 16 },
+      { exerciseId: '25', sets: 1, reps: 1, weight: 30 }, // Bieg ciągły - 30 min
     ]
   },
   {
@@ -155,6 +175,7 @@ export const workoutHistory: WorkoutSession[] = [
     exercises: [
       { exerciseId: '9', sets: 5, reps: 5, weight: 115 },
       { exerciseId: '11', sets: 4, reps: 12, weight: 70 },
+      { exerciseId: '26', sets: 1, reps: 1, weight: 20 }, // Interwały - 20 min
     ]
   },
   {
@@ -174,8 +195,8 @@ export const userStats = {
   avatarUrl: null,
 };
 
-export const bodyPartLabels: Record<BodyPart, string> = {
-  all: 'Wszystkie',
+export const bodyPartLabels: Record<Exclude<BodyPart, null>, string> = {
+  head: 'Wydolność',
   arms: 'Ręce',
   torso: 'Tułów',
   legs: 'Nogi',
@@ -185,4 +206,38 @@ export const categoryLabels: Record<ExerciseCategory, string> = {
   wzmocnienie: 'Wzmocnienie',
   mobilność: 'Mobilność',
   cardio: 'Cardio',
+  wydolność: 'Wydolność',
+};
+
+// Generate weekly microcycles mock data
+export const generateWeeklyMicrocycles = (weeks: number): WeeklyMicrocycle[] => {
+  const microcycles: WeeklyMicrocycle[] = [];
+  const now = new Date();
+  
+  for (let i = weeks - 1; i >= 0; i--) {
+    const weekStart = new Date(now);
+    weekStart.setDate(weekStart.getDate() - (i * 7) - weekStart.getDay() + 1);
+    
+    const days = ['Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'Sb', 'Nd'].map((day, index) => {
+      const hasTraining = Math.random() > 0.4;
+      return {
+        day,
+        volume: hasTraining ? Math.floor(Math.random() * 80) + 10 : null,
+      };
+    });
+    
+    const totalVolume = days.reduce((sum, d) => sum + (d.volume || 0), 0);
+    const acwr = Math.random() * 1.8 + 0.3; // Random ACWR between 0.3 and 2.1
+    
+    microcycles.push({
+      weekNumber: weeks - i,
+      year: weekStart.getFullYear(),
+      startDate: weekStart.toISOString().split('T')[0],
+      days,
+      totalVolume,
+      acwr: parseFloat(acwr.toFixed(2)),
+    });
+  }
+  
+  return microcycles;
 };

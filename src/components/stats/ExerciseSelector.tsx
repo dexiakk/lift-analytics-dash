@@ -31,14 +31,14 @@ export const ExerciseSelector = ({
   const [isOpen, setIsOpen] = useState(false);
 
   const filteredExercises = exercises.filter((ex) => {
-    const matchesBodyPart = bodyPartFilter === 'all' || ex.bodyPart === bodyPartFilter;
+    const matchesBodyPart = bodyPartFilter === null || ex.bodyPart === bodyPartFilter;
     const matchesCategory = !selectedCategory || ex.category === selectedCategory;
     return matchesBodyPart && matchesCategory;
   });
 
   const categories = Array.from(new Set(
     exercises
-      .filter((ex) => bodyPartFilter === 'all' || ex.bodyPart === bodyPartFilter)
+      .filter((ex) => bodyPartFilter === null || ex.bodyPart === bodyPartFilter)
       .map((ex) => ex.category)
   ));
 
