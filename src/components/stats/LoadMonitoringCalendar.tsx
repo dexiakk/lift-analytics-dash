@@ -37,11 +37,6 @@ export const LoadMonitoringCalendar = ({ selectedPeriod, dateRange }: LoadMonito
     return 'bg-red-400 text-red-900';
   };
 
-  const getAcwrBorderColor = (acwr: number) => {
-    if (acwr < 0.8) return 'border-blue-500';
-    if (acwr <= 1.3) return 'border-green-500';
-    return 'border-red-500';
-  };
 
   const currentYear = new Date().getFullYear();
 
@@ -75,10 +70,7 @@ export const LoadMonitoringCalendar = ({ selectedPeriod, dateRange }: LoadMonito
           </thead>
           <tbody>
             {microcycles.map((week) => (
-              <tr key={week.weekNumber} className={cn(
-                "border-b border-border/50",
-                getAcwrBorderColor(week.acwr)
-              )}>
+              <tr key={week.weekNumber}>
                 <td className="py-1.5 px-1 text-center font-medium text-primary">{week.weekNumber}</td>
                 {week.days.map((day, index) => (
                   <td key={index} className="py-1.5 px-1 text-center">
