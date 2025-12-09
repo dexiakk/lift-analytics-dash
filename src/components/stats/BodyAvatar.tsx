@@ -7,86 +7,184 @@ interface BodyAvatarProps {
 }
 
 export const BodyAvatar = ({ selectedPart, onPartSelect }: BodyAvatarProps) => {
-  const isPartActive = (part: BodyPart) => selectedPart === part;
+  const isPartActive = (part: Exclude<BodyPart, null>) => selectedPart === part;
+
+  const handlePartClick = (part: Exclude<BodyPart, null>) => {
+    // Toggle selection - if already selected, deselect
+    if (selectedPart === part) {
+      onPartSelect(null);
+    } else {
+      onPartSelect(part);
+    }
+  };
 
   return (
-    <div className="relative w-40 h-52 mx-auto">
+    <div className="relative w-32 h-56 mx-auto">
       <svg
-        viewBox="0 0 200 280"
+        viewBox="0 0 120 220"
         className="w-full h-full"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
-        {/* Head - click for "all" */}
-        <circle
-          cx="100"
-          cy="35"
-          r="28"
+        {/* Hair */}
+        <ellipse
+          cx="60"
+          cy="12"
+          rx="14"
+          ry="6"
+          className="fill-amber-600"
+        />
+        
+        {/* Head - for endurance exercises */}
+        <ellipse
+          cx="60"
+          cy="22"
+          rx="12"
+          ry="14"
           className={cn(
-            "fill-muted stroke-border stroke-2 transition-all duration-200 cursor-pointer hover:fill-primary/20",
-            isPartActive('all') && "fill-primary/20 stroke-primary"
+            "fill-muted stroke-border stroke-[1.5] transition-all duration-200 cursor-pointer hover:fill-primary/30",
+            isPartActive('head') && "fill-primary/40 stroke-primary"
           )}
-          onClick={() => onPartSelect('all')}
+          onClick={() => handlePartClick('head')}
         />
         
         {/* Neck */}
-        <rect x="90" y="60" width="20" height="15" className="fill-muted stroke-border stroke-2" />
+        <rect x="56" y="35" width="8" height="8" className="fill-muted stroke-border stroke-[1.5]" />
         
-        {/* Left Arm */}
+        {/* Jersey (Torso) */}
         <path
-          d="M55 80 L45 80 Q30 82 25 100 L18 150 Q15 165 25 170 L40 175 Q50 175 55 165 L65 120 L65 80 Z"
+          d="M38 43 L82 43 L82 95 L38 95 Z"
           className={cn(
-            "fill-muted stroke-border stroke-2 transition-all duration-200 cursor-pointer hover:fill-warning/30",
-            isPartActive('arms') && "fill-warning/30 stroke-warning"
+            "fill-slate-700 stroke-slate-800 stroke-[1.5] transition-all duration-200 cursor-pointer hover:fill-info/40",
+            isPartActive('torso') && "fill-info/50 stroke-info"
           )}
-          onClick={() => onPartSelect('arms')}
+          onClick={() => handlePartClick('torso')}
         />
         
-        {/* Right Arm */}
+        {/* Jersey V-neck detail */}
         <path
-          d="M145 80 L155 80 Q170 82 175 100 L182 150 Q185 165 175 170 L160 175 Q150 175 145 165 L135 120 L135 80 Z"
+          d="M54 43 L60 52 L66 43"
+          className="stroke-red-500 stroke-2 fill-none"
+        />
+        
+        {/* Jersey collar */}
+        <path
+          d="M48 43 L48 47 L72 47 L72 43"
+          className="stroke-slate-600 stroke-[1.5] fill-slate-600"
+        />
+        
+        {/* Jersey crest */}
+        <path
+          d="M55 55 L65 55 L65 65 L60 68 L55 65 Z"
+          className="fill-slate-500 stroke-slate-600 stroke-[0.5]"
+        />
+        
+        {/* Left Sleeve & Arm */}
+        <path
+          d="M38 43 L28 48 L25 70 L38 72 L38 43"
           className={cn(
-            "fill-muted stroke-border stroke-2 transition-all duration-200 cursor-pointer hover:fill-warning/30",
-            isPartActive('arms') && "fill-warning/30 stroke-warning"
+            "fill-slate-700 stroke-slate-800 stroke-[1.5] transition-all duration-200 cursor-pointer hover:fill-warning/40",
+            isPartActive('arms') && "fill-warning/50 stroke-warning"
           )}
-          onClick={() => onPartSelect('arms')}
+          onClick={() => handlePartClick('arms')}
         />
-        
-        {/* Torso (chest + back combined) */}
+        {/* Left forearm */}
         <path
-          d="M65 75 L135 75 Q145 75 145 85 L145 175 Q145 185 135 185 L65 185 Q55 185 55 175 L55 85 Q55 75 65 75 Z"
+          d="M25 70 L22 95 L32 95 L38 72"
           className={cn(
-            "fill-muted stroke-border stroke-2 transition-all duration-200 cursor-pointer hover:fill-info-light",
-            isPartActive('torso') && "fill-info-light stroke-info"
+            "fill-muted stroke-border stroke-[1.5] transition-all duration-200 cursor-pointer hover:fill-warning/30",
+            isPartActive('arms') && "fill-warning/40 stroke-warning"
           )}
-          onClick={() => onPartSelect('torso')}
+          onClick={() => handlePartClick('arms')}
         />
         
-        {/* Pelvis */}
+        {/* Right Sleeve & Arm */}
         <path
-          d="M70 185 L130 185 L135 200 L65 200 Z"
-          className="fill-muted stroke-border stroke-2"
+          d="M82 43 L92 48 L95 70 L82 72 L82 43"
+          className={cn(
+            "fill-slate-700 stroke-slate-800 stroke-[1.5] transition-all duration-200 cursor-pointer hover:fill-warning/40",
+            isPartActive('arms') && "fill-warning/50 stroke-warning"
+          )}
+          onClick={() => handlePartClick('arms')}
         />
+        {/* Right forearm */}
+        <path
+          d="M95 70 L98 95 L88 95 L82 72"
+          className={cn(
+            "fill-muted stroke-border stroke-[1.5] transition-all duration-200 cursor-pointer hover:fill-warning/30",
+            isPartActive('arms') && "fill-warning/40 stroke-warning"
+          )}
+          onClick={() => handlePartClick('arms')}
+        />
+        
+        {/* Shorts */}
+        <path
+          d="M38 95 L82 95 L78 130 L42 130 Z"
+          className="fill-red-500 stroke-red-600 stroke-[1.5]"
+        />
+        
+        {/* Shorts number */}
+        <text x="60" y="118" textAnchor="middle" className="fill-white text-[10px] font-bold">10</text>
         
         {/* Left Leg */}
         <path
-          d="M65 200 L95 200 L92 268 Q92 278 82 278 L78 278 Q68 278 68 268 Z"
+          d="M42 130 L48 130 L50 175 L40 175 Z"
           className={cn(
-            "fill-muted stroke-border stroke-2 transition-all duration-200 cursor-pointer hover:fill-success-light",
-            isPartActive('legs') && "fill-success-light stroke-primary"
+            "fill-muted stroke-border stroke-[1.5] transition-all duration-200 cursor-pointer hover:fill-success/30",
+            isPartActive('legs') && "fill-success/40 stroke-primary"
           )}
-          onClick={() => onPartSelect('legs')}
+          onClick={() => handlePartClick('legs')}
         />
         
         {/* Right Leg */}
         <path
-          d="M105 200 L135 200 L132 268 Q132 278 122 278 L118 278 Q108 278 108 268 Z"
+          d="M72 130 L78 130 L80 175 L70 175 Z"
           className={cn(
-            "fill-muted stroke-border stroke-2 transition-all duration-200 cursor-pointer hover:fill-success-light",
-            isPartActive('legs') && "fill-success-light stroke-primary"
+            "fill-muted stroke-border stroke-[1.5] transition-all duration-200 cursor-pointer hover:fill-success/30",
+            isPartActive('legs') && "fill-success/40 stroke-primary"
           )}
-          onClick={() => onPartSelect('legs')}
+          onClick={() => handlePartClick('legs')}
         />
+        
+        {/* Left Sock */}
+        <path
+          d="M40 175 L50 175 L50 200 L40 200 Z"
+          className={cn(
+            "fill-cyan-400 stroke-cyan-500 stroke-[1.5] transition-all duration-200 cursor-pointer hover:fill-success/30",
+            isPartActive('legs') && "fill-success/40 stroke-primary"
+          )}
+          onClick={() => handlePartClick('legs')}
+        />
+        
+        {/* Right Sock */}
+        <path
+          d="M70 175 L80 175 L80 200 L70 200 Z"
+          className={cn(
+            "fill-cyan-400 stroke-cyan-500 stroke-[1.5] transition-all duration-200 cursor-pointer hover:fill-success/30",
+            isPartActive('legs') && "fill-success/40 stroke-primary"
+          )}
+          onClick={() => handlePartClick('legs')}
+        />
+        
+        {/* Left Boot */}
+        <path
+          d="M38 200 L52 200 L52 210 L35 210 L35 205 Z"
+          className="fill-lime-500 stroke-lime-600 stroke-[1.5]"
+        />
+        
+        {/* Right Boot */}
+        <path
+          d="M68 200 L82 200 L85 205 L85 210 L68 210 Z"
+          className="fill-lime-500 stroke-lime-600 stroke-[1.5]"
+        />
+        
+        {/* Boot studs */}
+        <rect x="38" y="210" width="3" height="3" className="fill-slate-800" />
+        <rect x="44" y="210" width="3" height="3" className="fill-slate-800" />
+        <rect x="50" y="210" width="3" height="3" className="fill-slate-800" />
+        <rect x="70" y="210" width="3" height="3" className="fill-slate-800" />
+        <rect x="76" y="210" width="3" height="3" className="fill-slate-800" />
+        <rect x="82" y="210" width="3" height="3" className="fill-slate-800" />
       </svg>
     </div>
   );

@@ -31,7 +31,7 @@ export const ExerciseChips = ({
     }
   };
 
-  if (bodyPartFilter === 'all') {
+  if (bodyPartFilter === null) {
     return null;
   }
 

@@ -4,15 +4,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BodyAvatar } from '@/components/stats/BodyAvatar';
 import { StatsCards } from '@/components/stats/StatsCards';
 import { PeriodSelector, PeriodType } from '@/components/stats/PeriodSelector';
-import { ExerciseSelector } from '@/components/stats/ExerciseSelector';
 import { ExerciseChips } from '@/components/stats/ExerciseChips';
 import { VolumeChart } from '@/components/stats/VolumeChart';
 import { ProgressChart } from '@/components/stats/ProgressChart';
-import { BodyPart, userStats, workoutHistory, exercises, bodyPartLabels } from '@/data/mockData';
+import { LoadMonitoringCalendar } from '@/components/stats/LoadMonitoringCalendar';
+import { BodyPart, workoutHistory, exercises, bodyPartLabels } from '@/data/mockData';
 import { subDays, subMonths } from 'date-fns';
 
 const Index = () => {
-  const [selectedBodyPart, setSelectedBodyPart] = useState<BodyPart>('all');
+  const [selectedBodyPart, setSelectedBodyPart] = useState<BodyPart>(null);
   const [selectedPeriod, setSelectedPeriod] = useState<PeriodType>('30d');
   const [selectedExercises, setSelectedExercises] = useState<string[]>([]);
   const [customDateRange, setCustomDateRange] = useState<{ from: Date; to: Date }>({
@@ -40,7 +40,7 @@ const Index = () => {
 
   // Calculate filtered stats based on body part
   const filteredStats = useMemo(() => {
-    const relevantExerciseIds = selectedBodyPart === 'all'
+    const relevantExerciseIds = selectedBodyPart === null
       ? exercises.map((e) => e.id)
       : exercises.filter((e) => e.bodyPart === selectedBodyPart).map((e) => e.id);
 
@@ -73,7 +73,7 @@ const Index = () => {
 
   // Clear all filters
   const handleClearFilters = () => {
-    setSelectedBodyPart('all');
+    setSelectedBodyPart(null);
     setSelectedExercises([]);
   };
 
@@ -95,7 +95,7 @@ const Index = () => {
             selectedPart={selectedBodyPart}
             onPartSelect={handleBodyPartChange}
           />
-          {selectedBodyPart !== 'all' && (
+          {selectedBodyPart !== null && (
             <p className="text-center text-sm text-primary font-medium mt-3 animate-fade-in">
               Filtr: {bodyPartLabels[selectedBodyPart]}
             </p>
@@ -121,47 +121,53 @@ const Index = () => {
           />
         </section>
 
-        {/* Exercise Selector - Show chips when body part selected, dropdown otherwise */}
-        <section className="bg-card rounded-2xl p-4 shadow-sm border border-border/50 animate-fade-in">
-          {selectedBodyPart === 'all' ? (
-            <ExerciseSelector
-              selectedExercises={selectedExercises}
-              onExercisesChange={setSelectedExercises}
-              bodyPartFilter={selectedBodyPart}
+        {/* Conditional content based on avatar selection */}
+        {selectedBodyPart === null ? (
+          /* Load Monitoring Calendar - when nothing selected */
+          <section className="bg-card rounded-2xl p-4 shadow-sm border border-border/50 animate-fade-in">
+            <h3 className="text-sm font-medium text-muted-foreground mb-3">Monitoring obciążeń</h3>
+            <LoadMonitoringCalendar
+              selectedPeriod={selectedPeriod}
+              dateRange={dateRange}
             />
-          ) : (
-            <ExerciseChips
-              selectedExercises={selectedExercises}
-              onExercisesChange={setSelectedExercises}
-              bodyPartFilter={selectedBodyPart}
-              onClearFilter={handleClearFilters}
-            />
-          )}
-        </section>
+          </section>
+        ) : (
+          <>
+            {/* Exercise Chips - when body part selected */}
+            <section className="bg-card rounded-2xl p-4 shadow-sm border border-border/50 animate-fade-in">
+              <ExerciseChips
+                selectedExercises={selectedExercises}
+                onExercisesChange={setSelectedExercises}
+                bodyPartFilter={selectedBodyPart}
+                onClearFilter={handleClearFilters}
+              />
+            </section>
 
-        {/* Charts */}
-        <section className="bg-card rounded-2xl p-4 shadow-sm border border-border/50 animate-fade-in">
-          <Tabs defaultValue="volume" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-4">
-              <TabsTrigger value="volume">Wolumen</TabsTrigger>
-              <TabsTrigger value="progress">Progres</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="volume" className="mt-0">
-              <VolumeChart
-                selectedExercises={selectedExercises}
-                dateRange={dateRange}
-              />
-            </TabsContent>
-            
-            <TabsContent value="progress" className="mt-0">
-              <ProgressChart
-                selectedExercises={selectedExercises}
-                dateRange={dateRange}
-              />
-            </TabsContent>
-          </Tabs>
-        </section>
+            {/* Charts */}
+            <section className="bg-card rounded-2xl p-4 shadow-sm border border-border/50 animate-fade-in">
+              <Tabs defaultValue="volume" className="w-full">
+                <TabsList className="grid w-full grid-cols-2 mb-4">
+                  <TabsTrigger value="volume">Wolumen</TabsTrigger>
+                  <TabsTrigger value="progress">Progres</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="volume" className="mt-0">
+                  <VolumeChart
+                    selectedExercises={selectedExercises}
+                    dateRange={dateRange}
+                  />
+                </TabsContent>
+                
+                <TabsContent value="progress" className="mt-0">
+                  <ProgressChart
+                    selectedExercises={selectedExercises}
+                    dateRange={dateRange}
+                  />
+                </TabsContent>
+              </Tabs>
+            </section>
+          </>
+        )}
       </div>
     </main>
   );
