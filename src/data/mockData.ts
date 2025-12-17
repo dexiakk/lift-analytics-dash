@@ -20,14 +20,26 @@ export interface WorkoutSession {
   }[];
 }
 
+export interface Training {
+  id: string;
+  duration: number; // in minutes
+  intensity: number; // RPE 1-10
+  volume: number;
+  note?: string;
+}
+
+export interface DayData {
+  day: string;
+  date: Date;
+  trainings: Training[];
+}
+
 export interface WeeklyMicrocycle {
   weekNumber: number;
   year: number;
-  startDate: string;
-  days: {
-    day: string;
-    volume: number | null;
-  }[];
+  startDate: Date;
+  endDate: Date;
+  days: DayData[];
   totalVolume: number;
   acwr: number; // Acute:Chronic Workload Ratio
 }
@@ -209,6 +221,18 @@ export const categoryLabels: Record<ExerciseCategory, string> = {
   wydolność: 'Wydolność',
 };
 
+// Sample notes for mock data
+const sampleNotes = [
+  'Dobra sesja, pełna energia',
+  'Zmęczenie po pracy, słabsza forma',
+  'Nowy PR w przysiądzie!',
+  'Lekki trening regeneracyjny',
+  'Świetne tempo, bez przerw',
+  null,
+  null,
+  null,
+];
+
 // Generate weekly microcycles mock data
 export const generateWeeklyMicrocycles = (weeks: number): WeeklyMicrocycle[] => {
   const microcycles: WeeklyMicrocycle[] = [];
@@ -217,22 +241,53 @@ export const generateWeeklyMicrocycles = (weeks: number): WeeklyMicrocycle[] => 
   for (let i = weeks - 1; i >= 0; i--) {
     const weekStart = new Date(now);
     weekStart.setDate(weekStart.getDate() - (i * 7) - weekStart.getDay() + 1);
+    weekStart.setHours(0, 0, 0, 0);
     
-    const days = ['Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'Sb', 'Nd'].map((day, index) => {
-      const hasTraining = Math.random() > 0.4;
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekEnd.getDate() + 6);
+    
+    const dayNames = ['Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'Sb', 'Nd'];
+    const days: DayData[] = dayNames.map((day, index) => {
+      const dayDate = new Date(weekStart);
+      dayDate.setDate(dayDate.getDate() + index);
+      
+      // Randomly decide number of trainings (0-3)
+      const rand = Math.random();
+      let numTrainings = 0;
+      if (rand > 0.4) numTrainings = 1;
+      if (rand > 0.75) numTrainings = 2;
+      if (rand > 0.92) numTrainings = 3;
+      
+      const trainings: Training[] = [];
+      for (let t = 0; t < numTrainings; t++) {
+        const duration = Math.floor(Math.random() * 60) + 30; // 30-90 min
+        const intensity = Math.floor(Math.random() * 4) + 6; // RPE 6-10
+        trainings.push({
+          id: `t-${i}-${index}-${t}`,
+          duration,
+          intensity,
+          volume: Math.floor(Math.random() * 3000) + 500,
+          note: sampleNotes[Math.floor(Math.random() * sampleNotes.length)] || undefined,
+        });
+      }
+      
       return {
         day,
-        volume: hasTraining ? Math.floor(Math.random() * 80) + 10 : null,
+        date: dayDate,
+        trainings,
       };
     });
     
-    const totalVolume = days.reduce((sum, d) => sum + (d.volume || 0), 0);
-    const acwr = Math.random() * 1.8 + 0.3; // Random ACWR between 0.3 and 2.1
+    const totalVolume = days.reduce((sum, d) => 
+      sum + d.trainings.reduce((ts, t) => ts + t.volume, 0), 0
+    );
+    const acwr = Math.random() * 1.8 + 0.3;
     
     microcycles.push({
       weekNumber: weeks - i,
       year: weekStart.getFullYear(),
-      startDate: weekStart.toISOString().split('T')[0],
+      startDate: weekStart,
+      endDate: weekEnd,
       days,
       totalVolume,
       acwr: parseFloat(acwr.toFixed(2)),
