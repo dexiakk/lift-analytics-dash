@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { generateWeeklyMicrocycles, DayData, Training } from '@/data/mockData';
+import { generateWeeklyMicrocycles, Training, WeeklyMicrocycle } from '@/data/mockData';
 import { PeriodType } from './PeriodSelector';
 import { format } from 'date-fns';
 import { pl } from 'date-fns/locale';
@@ -18,67 +18,94 @@ interface LoadMonitoringCalendarProps {
 
 const dayNames = ['Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'Sb', 'Nd'];
 
-const DayCell = ({ day, onDayClick }: { day: DayData; onDayClick?: () => void }) => {
-  const totalLoad = day.trainings.reduce((sum, t) => sum + (t.duration * t.intensity), 0);
-  const totalVolume = day.trainings.reduce((sum, t) => sum + t.volume, 0);
-  const hasTraining = day.trainings.length > 0;
-  
-  const displayValue = hasTraining 
-    ? day.trainings.length > 1 
-      ? `${day.trainings.length}×` 
-      : Math.round(totalLoad / 10)
-    : '-';
+interface TrainingCellProps {
+  training: Training;
+  showValue?: boolean;
+}
 
+const TrainingCell = ({ training, showValue = true }: TrainingCellProps) => {
   return (
     <Popover>
       <PopoverTrigger asChild>
         <button 
           className={cn(
-            "w-7 h-7 mx-auto flex items-center justify-center rounded text-[10px] transition-colors cursor-pointer hover:ring-2 hover:ring-primary/50",
-            hasTraining ? "bg-green-400/80 text-green-900" : "bg-muted text-muted-foreground"
+            "w-full h-6 flex items-center justify-center rounded text-[9px] transition-colors cursor-pointer hover:ring-2 hover:ring-primary/50",
+            "bg-green-400/80 text-green-900"
           )}
-          onClick={onDayClick}
         >
-          {displayValue}
+          {showValue ? `${training.duration}'×${training.intensity}` : ''}
         </button>
       </PopoverTrigger>
-      {hasTraining && (
-        <PopoverContent className="w-64 p-3" side="top">
-          <div className="space-y-2">
-            <p className="font-medium text-sm">
-              {format(day.date, 'EEEE, d MMMM', { locale: pl })}
-            </p>
-            {day.trainings.map((training, idx) => (
-              <div key={training.id} className="text-xs space-y-1 border-t border-border pt-2">
-                {day.trainings.length > 1 && (
-                  <p className="font-medium text-muted-foreground">Trening {idx + 1}</p>
-                )}
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Czas × Intensywność:</span>
-                  <span className="font-medium">{training.duration}min × RPE {training.intensity}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Obciążenie:</span>
-                  <span className="font-medium">{training.duration * training.intensity}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Wolumen:</span>
-                  <span className="font-medium">{training.volume} kg</span>
-                </div>
-                {training.note && (
-                  <p className="text-muted-foreground italic mt-1">„{training.note}"</p>
-                )}
-              </div>
-            ))}
-            <div className="border-t border-border pt-2 flex justify-between font-medium text-sm">
-              <span>Suma wolumenu:</span>
-              <span>{totalVolume} kg</span>
-            </div>
+      <PopoverContent className="w-56 p-3" side="top">
+        <div className="space-y-2">
+          <div className="flex justify-between text-xs">
+            <span className="text-muted-foreground">Czas × Intensywność:</span>
+            <span className="font-medium">{training.duration}min × RPE {training.intensity}</span>
           </div>
-        </PopoverContent>
-      )}
+          <div className="flex justify-between text-xs">
+            <span className="text-muted-foreground">Obciążenie:</span>
+            <span className="font-medium">{training.duration * training.intensity}</span>
+          </div>
+          <div className="flex justify-between text-xs">
+            <span className="text-muted-foreground">Wolumen:</span>
+            <span className="font-medium">{training.volume} kg</span>
+          </div>
+          {training.note && (
+            <p className="text-xs text-muted-foreground italic border-t border-border pt-2">
+              „{training.note}"
+            </p>
+          )}
+        </div>
+      </PopoverContent>
     </Popover>
   );
+};
+
+const EmptyCell = () => (
+  <div className="w-full h-6 flex items-center justify-center rounded text-[9px] bg-muted text-muted-foreground">
+    -
+  </div>
+);
+
+// Flatten week data into rows where each training is a separate row
+interface FlattenedRow {
+  weekNumber: number;
+  startDate: Date;
+  endDate: Date;
+  isFirstRowOfWeek: boolean;
+  dayIndex: number;
+  trainingIndex: number;
+  training: Training | null;
+  date: Date;
+  isFirstTrainingOfDay: boolean;
+  weekTotalVolume: number;
+  weekAcwr: number;
+}
+
+const flattenWeekToRows = (week: WeeklyMicrocycle): FlattenedRow[] => {
+  const rows: FlattenedRow[] = [];
+  
+  // Find max trainings in any day of this week
+  const maxTrainingsPerDay = Math.max(1, ...week.days.map(d => d.trainings.length));
+  
+  for (let trainingIdx = 0; trainingIdx < maxTrainingsPerDay; trainingIdx++) {
+    const row: FlattenedRow = {
+      weekNumber: week.weekNumber,
+      startDate: week.startDate,
+      endDate: week.endDate,
+      isFirstRowOfWeek: trainingIdx === 0,
+      dayIndex: 0,
+      trainingIndex: trainingIdx,
+      training: null,
+      date: week.startDate,
+      isFirstTrainingOfDay: trainingIdx === 0,
+      weekTotalVolume: week.totalVolume,
+      weekAcwr: week.acwr,
+    };
+    rows.push(row);
+  }
+  
+  return rows;
 };
 
 export const LoadMonitoringCalendar = ({ selectedPeriod, dateRange }: LoadMonitoringCalendarProps) => {
@@ -119,26 +146,27 @@ export const LoadMonitoringCalendar = ({ selectedPeriod, dateRange }: LoadMonito
 
   const currentYear = new Date().getFullYear();
 
+  const handleDayHeaderClick = (dayIndex: number) => {
+    setSelectedDayFilter(prev => prev === dayIndex ? null : dayIndex);
+  };
+
   // Filter data for specific day view
   const filteredDayData = useMemo(() => {
     if (selectedDayFilter === null) return null;
     
-    const allDaysOfType: { date: Date; trainings: Training[] }[] = [];
+    const allTrainings: { date: Date; training: Training; isFirst: boolean }[] = [];
     microcycles.forEach(week => {
       const day = week.days[selectedDayFilter];
-      if (day.trainings.length > 0) {
-        allDaysOfType.push({
+      day.trainings.forEach((training, idx) => {
+        allTrainings.push({
           date: day.date,
-          trainings: day.trainings,
+          training,
+          isFirst: idx === 0,
         });
-      }
+      });
     });
-    return allDaysOfType;
+    return allTrainings;
   }, [microcycles, selectedDayFilter]);
-
-  const handleDayHeaderClick = (dayIndex: number) => {
-    setSelectedDayFilter(prev => prev === dayIndex ? null : dayIndex);
-  };
 
   // Filtered day view
   if (selectedDayFilter !== null && filteredDayData) {
@@ -166,31 +194,47 @@ export const LoadMonitoringCalendar = ({ selectedPeriod, dateRange }: LoadMonito
               </tr>
             </thead>
             <tbody>
-              {filteredDayData.map((dayEntry, idx) => (
-                dayEntry.trainings.map((training, tIdx) => (
-                  <tr key={`${idx}-${tIdx}`}>
-                    <td className="py-2 px-2 text-left">
+              {filteredDayData.map((entry, idx) => (
+                <tr key={`${idx}`}>
+                  <td className="py-1.5 px-2 text-left">
+                    {entry.isFirst ? (
                       <span className="font-medium">
-                        {format(dayEntry.date, 'd MMMM', { locale: pl })}
+                        {format(entry.date, 'd MMMM', { locale: pl })}
                       </span>
-                      {dayEntry.trainings.length > 1 && (
-                        <span className="text-muted-foreground ml-1">
-                          (trening {tIdx + 1}/{dayEntry.trainings.length})
-                        </span>
-                      )}
-                    </td>
-                    <td className="py-2 px-2 text-center">
-                      <div className="bg-green-400/80 text-green-900 rounded px-2 py-1 font-medium inline-block">
-                        {training.duration}min × {training.intensity}
-                      </div>
-                    </td>
-                    <td className="py-2 px-2 text-center">
-                      <div className="bg-blue-400/80 text-blue-900 rounded px-2 py-1 font-medium inline-block">
-                        {training.volume} kg
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                    ) : null}
+                  </td>
+                  <td className="py-1.5 px-2 text-center">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button className="bg-green-400/80 text-green-900 rounded px-2 py-1 font-medium hover:ring-2 hover:ring-primary/50 transition-colors">
+                          {entry.training.duration}min × {entry.training.intensity}
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-56 p-3" side="top">
+                        <div className="space-y-2">
+                          <div className="flex justify-between text-xs">
+                            <span className="text-muted-foreground">Obciążenie:</span>
+                            <span className="font-medium">{entry.training.duration * entry.training.intensity}</span>
+                          </div>
+                          <div className="flex justify-between text-xs">
+                            <span className="text-muted-foreground">Wolumen:</span>
+                            <span className="font-medium">{entry.training.volume} kg</span>
+                          </div>
+                          {entry.training.note && (
+                            <p className="text-xs text-muted-foreground italic border-t border-border pt-2">
+                              „{entry.training.note}"
+                            </p>
+                          )}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  </td>
+                  <td className="py-1.5 px-2 text-center">
+                    <div className="bg-blue-400/80 text-blue-900 rounded px-2 py-1 font-medium inline-block">
+                      {entry.training.volume} kg
+                    </div>
+                  </td>
+                </tr>
               ))}
             </tbody>
           </table>
@@ -205,7 +249,18 @@ export const LoadMonitoringCalendar = ({ selectedPeriod, dateRange }: LoadMonito
     );
   }
 
-  // Default calendar view
+  // Calculate max trainings per day across all weeks for row generation
+  const maxTrainingsInAnyDay = useMemo(() => {
+    let max = 1;
+    microcycles.forEach(week => {
+      week.days.forEach(day => {
+        if (day.trainings.length > max) max = day.trainings.length;
+      });
+    });
+    return max;
+  }, [microcycles]);
+
+  // Default calendar view with multiple rows per week if needed
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-center gap-4">
@@ -237,31 +292,53 @@ export const LoadMonitoringCalendar = ({ selectedPeriod, dateRange }: LoadMonito
             </tr>
           </thead>
           <tbody>
-            {microcycles.map((week) => (
-              <tr key={week.weekNumber}>
-                <td className="py-1.5 px-1 text-center font-medium text-primary text-[10px]">
-                  {formatWeekRange(week.startDate, week.endDate)}
-                </td>
-                {week.days.map((day, index) => (
-                  <td key={index} className="py-1.5 px-1 text-center">
-                    <DayCell day={day} />
-                  </td>
-                ))}
-                <td className="py-1.5 px-1 text-center">
-                  <div className="bg-blue-400/80 text-blue-900 rounded px-2 py-1 font-medium">
-                    {week.totalVolume}
-                  </div>
-                </td>
-                <td className="py-1.5 px-1 text-center">
-                  <div className={cn(
-                    "rounded px-2 py-1 font-medium",
-                    getAcwrColor(week.acwr)
-                  )}>
-                    {week.acwr.toFixed(2)}
-                  </div>
-                </td>
-              </tr>
-            ))}
+            {microcycles.map((week) => {
+              // Find max trainings for this week
+              const maxTrainingsThisWeek = Math.max(1, ...week.days.map(d => d.trainings.length));
+              
+              // Generate rows for this week
+              const rows = [];
+              for (let rowIdx = 0; rowIdx < maxTrainingsThisWeek; rowIdx++) {
+                const isFirstRow = rowIdx === 0;
+                rows.push(
+                  <tr key={`${week.weekNumber}-${rowIdx}`}>
+                    <td className="py-1 px-1 text-center font-medium text-primary text-[10px]">
+                      {isFirstRow ? formatWeekRange(week.startDate, week.endDate) : ''}
+                    </td>
+                    {week.days.map((day, dayIndex) => {
+                      const training = day.trainings[rowIdx];
+                      return (
+                        <td key={dayIndex} className="py-1 px-0.5 text-center">
+                          {training ? (
+                            <TrainingCell training={training} />
+                          ) : (
+                            isFirstRow ? <EmptyCell /> : <div className="h-6" />
+                          )}
+                        </td>
+                      );
+                    })}
+                    <td className="py-1 px-1 text-center">
+                      {isFirstRow ? (
+                        <div className="bg-blue-400/80 text-blue-900 rounded px-2 py-1 font-medium">
+                          {week.totalVolume}
+                        </div>
+                      ) : null}
+                    </td>
+                    <td className="py-1 px-1 text-center">
+                      {isFirstRow ? (
+                        <div className={cn(
+                          "rounded px-2 py-1 font-medium",
+                          getAcwrColor(week.acwr)
+                        )}>
+                          {week.acwr.toFixed(2)}
+                        </div>
+                      ) : null}
+                    </td>
+                  </tr>
+                );
+              }
+              return rows;
+            })}
           </tbody>
         </table>
       </div>
