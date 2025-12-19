@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ChevronDown, ChevronUp, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { generateWeeklyMicrocycles, Training, WeeklyMicrocycle } from '@/data/mockData';
 import { PeriodType } from './PeriodSelector';
@@ -110,7 +110,19 @@ const flattenWeekToRows = (week: WeeklyMicrocycle): FlattenedRow[] => {
 
 export const LoadMonitoringCalendar = ({ selectedPeriod, dateRange }: LoadMonitoringCalendarProps) => {
   const [selectedDayFilter, setSelectedDayFilter] = useState<number | null>(null);
-  
+  const [expandedWeeks, setExpandedWeeks] = useState<Set<number>>(new Set());
+
+  const toggleWeekExpanded = (weekNumber: number) => {
+    setExpandedWeeks(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(weekNumber)) {
+        newSet.delete(weekNumber);
+      } else {
+        newSet.add(weekNumber);
+      }
+      return newSet;
+    });
+  };
   const weeksCount = useMemo(() => {
     switch (selectedPeriod) {
       case '7d':
@@ -289,16 +301,21 @@ export const LoadMonitoringCalendar = ({ selectedPeriod, dateRange }: LoadMonito
               ))}
               <th className="py-2 px-1 text-center font-medium text-muted-foreground">Wolumen</th>
               <th className="py-2 px-1 text-center font-medium text-muted-foreground">ACWR</th>
+              <th className="py-2 px-1 w-8"></th>
             </tr>
           </thead>
           <tbody>
             {microcycles.map((week) => {
               // Find max trainings for this week
               const maxTrainingsThisWeek = Math.max(1, ...week.days.map(d => d.trainings.length));
+              const isExpanded = expandedWeeks.has(week.weekNumber);
+              const hasMultipleTrainings = maxTrainingsThisWeek > 1;
               
               // Generate rows for this week
               const rows = [];
-              for (let rowIdx = 0; rowIdx < maxTrainingsThisWeek; rowIdx++) {
+              const rowsToShow = isExpanded ? maxTrainingsThisWeek : 1;
+              
+              for (let rowIdx = 0; rowIdx < rowsToShow; rowIdx++) {
                 const isFirstRow = rowIdx === 0;
                 rows.push(
                   <tr key={`${week.weekNumber}-${rowIdx}`}>
@@ -332,6 +349,20 @@ export const LoadMonitoringCalendar = ({ selectedPeriod, dateRange }: LoadMonito
                         )}>
                           {week.acwr.toFixed(2)}
                         </div>
+                      ) : null}
+                    </td>
+                    <td className="py-1 px-1 text-center">
+                      {isFirstRow && hasMultipleTrainings ? (
+                        <button
+                          onClick={() => toggleWeekExpanded(week.weekNumber)}
+                          className="p-1 hover:bg-secondary rounded transition-colors"
+                        >
+                          {isExpanded ? (
+                            <ChevronUp className="w-4 h-4" />
+                          ) : (
+                            <ChevronDown className="w-4 h-4" />
+                          )}
+                        </button>
                       ) : null}
                     </td>
                   </tr>
